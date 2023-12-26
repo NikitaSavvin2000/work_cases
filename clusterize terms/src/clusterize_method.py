@@ -76,7 +76,7 @@ def recommend_clusters(df, height=0.1, threshold=None, distance=None, prominence
     X = np.array(df["vector"].tolist())
     distance_matrix = pairwise_distances(X)
     result = ripser(distance_matrix)
-    diagram = result['dgms'][1]
+    diagram = result['dgms'][0]
     interval_lengths = np.array([point[1] - point[0] for point in diagram])
     peaks, _ = find_peaks(interval_lengths, height=height, threshold=threshold,
                           distance=distance, prominence=prominence,
@@ -160,31 +160,12 @@ def perform_agglomerative_clustering_seaborn(df: pd.DataFrame,
 
     return df
 
-import pandas as pd
-import seaborn as sns
-import numpy as np
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.preprocessing import StandardScaler
-from scipy.cluster.hierarchy import dendrogram
 
+def plot_dendrogram(model, **kwargs):
 
-def perform_agglomerative_clustering_dendrogram(df: pd.DataFrame,
-                                                n_clusters: int = 10,
-                                                affinity: str = 'euclidean',
-                                                linkage_method: str = 'ward') -> pd.DataFrame:
-    X = df['vector'].tolist()
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    clustering = AgglomerativeClustering(n_clusters=n_clusters,
-                                         affinity=affinity,
-                                         linkage=linkage_method)
-    df['cluster'] = clustering.fit_predict(X_scaled)
-
-    # Create linkage matrix and then plot the dendrogram
-    counts = np.zeros(clustering.children_.shape[0])
-    n_samples = len(clustering.labels_)
-    for i, merge in enumerate(clustering.children_):
+    counts = np.zeros(model.children_.shape[0])
+    n_samples = len(model.labels_)
+    for i, merge in enumerate(model.children_):
         current_count = 0
         for child_idx in merge:
             if child_idx < n_samples:
@@ -194,24 +175,32 @@ def perform_agglomerative_clustering_dendrogram(df: pd.DataFrame,
         counts[i] = current_count
 
     linkage_matrix = np.column_stack(
-        [clustering.children_, clustering.distances_, counts]
+        [model.children_, model.distances_, counts]
     ).astype(float)
 
-    # Plot the dendrogram
-    plt.figure(figsize=(12, 6))
+    dendrogram(linkage_matrix, **kwargs)
+
+
+def perform_agglomerative_clustering_dendrogram(df: pd.DataFrame,
+                                                n_clusters: Union[None,
+                                                                  int] = None,
+                                                affinity: str = 'euclidean',
+                                                linkage_method: str = 'ward',
+                                                distance_threshold: Union[None, int] = None) -> pd.DataFrame:
+    X = np.array(df["vector"].tolist())
+    X_scaled = X
+    if n_clusters is None and distance_threshold is None:
+        distance_threshold = 0
+    clustering = AgglomerativeClustering(n_clusters=n_clusters,
+                                         affinity=affinity,
+                                         linkage=linkage_method,
+                                         distance_threshold=distance_threshold)
+    df['cluster'] = clustering.fit_predict(X_scaled)
+
+    plt.figure(figsize=(20, 8))
     plt.title("Hierarchical Clustering Dendrogram")
-    dendrogram(linkage_matrix, truncate_mode="level", p=3)
+    plot_dendrogram(clustering)
     plt.xlabel("Number of points in node (or index of point if no parenthesis).")
     plt.show()
 
-    cmap = 'coolwarm'
-    metric_option = 'euclidean'
-    linkage_options = ['ward', 'complete', 'average', 'single']
-    for linkage_option in linkage_options:
-        sns.clustermap(X_scaled, method=linkage_option, metric=metric_option, row_cluster=False, col_cluster=True,
-                       cmap=cmap)
-        plt.title(
-            f'Hierarchical Clustering Dendrogram (method={linkage_option}, cmap={cmap})')
-        plt.show()
-
-    return df
+    return df, clustering
