@@ -1,8 +1,6 @@
 from typing import Any, Callable, List, Union
 
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 import seaborn as sns
 from ripser import ripser
 from scipy.cluster.hierarchy import dendrogram, fcluster, linkage
@@ -13,6 +11,15 @@ from sklearn.metrics import pairwise_distances
 from sklearn.metrics.pairwise import pairwise_distances_argmin_min
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
+import pandas as pd
+import numpy as np
+import plotly.express as px
+from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn.cluster import AgglomerativeClustering
+from typing import Union
+import plotly.graph_objects as go
+import plotly.figure_factory as ff
+
 
 
 def str_vector_to_list(df_vectors: pd.DataFrame) -> pd.DataFrame:
@@ -182,25 +189,35 @@ def plot_dendrogram(model, **kwargs):
 
 
 def perform_agglomerative_clustering_dendrogram(df: pd.DataFrame,
-                                                n_clusters: Union[None,
-                                                                  int] = None,
+                                                n_clusters: Union[None, int] = None,
                                                 affinity: str = 'euclidean',
                                                 linkage_method: str = 'ward',
                                                 distance_threshold: Union[None, int] = None) -> pd.DataFrame:
     X = np.array(df["vector"].tolist())
     X_scaled = X
+
+    # Set default values if both n_clusters and distance_threshold are None
     if n_clusters is None and distance_threshold is None:
         distance_threshold = 0
+
+    # Perform Agglomerative Clustering
     clustering = AgglomerativeClustering(n_clusters=n_clusters,
                                          affinity=affinity,
                                          linkage=linkage_method,
                                          distance_threshold=distance_threshold)
     df['cluster'] = clustering.fit_predict(X_scaled)
 
-    plt.figure(figsize=(20, 8))
-    plt.title("Hierarchical Clustering Dendrogram")
-    plot_dendrogram(clustering)
-    plt.xlabel("Number of points in node (or index of point if no parenthesis).")
-    plt.show()
+    # Perform hierarchical clustering
+    Z = linkage(X_scaled, method=linkage_method, optimal_ordering=False)
 
-    return df, clustering
+    # Create dendrogram
+    dendrogram_fig = ff.create_dendrogram(Z, orientation='top')
+
+    # Update layout
+    dendrogram_fig.update_layout(
+        title="Hierarchical Clustering Dendrogram",
+        xaxis_title="Number of points in node (or index of point if no parenthesis).",
+        template='presentation'
+    )
+
+    return df, dendrogram_fig

@@ -6,14 +6,14 @@ from tg_bot.build_map import building_map_and_exel
 
 import re
 # Установите свой токен от BotFather
-TOKEN = ""
+TOKEN = "6018245069:AAGR88gcOZtYzMcaKD4fSLecOutSlTe6tJU"
 
 # Определение стадий разговора
 SELECT_LANGUAGE, START_YEAR, FINISH_YEAR, INDEX, QUERY_TERMS, WAIT_QUERY_CONFIRMATION, FORMULATE_QUERY, BUILD_MAP = range(8)
 
 years = [str(year) for year in range(1990, 2024)]
 
-indices_index = ['Медиа']
+indices_index = ['Медиа', "Роспатент"]
 
 from telegram import Update
 
