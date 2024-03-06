@@ -5,6 +5,24 @@ import streamlit as st
 
 import streamlit as st
 
+
+
+indexes = {
+    'media': "*md_*_v1.*",
+    'science': "sti_science_mag_latest",
+    'patents_ru': "sti_patents_rospatent_latest",
+    'patents_en': "sti_patents_patstat_latest",
+    'grants': "sti_grants_*_v1.*",
+    'clinicals': "sti_science_clinicaltrials_v0.*",
+    'social_media': "social_media_telegram*",
+    'rinc': "sti_science_rinc_v1.0.1",
+    'crunchbase': "dir_crunchbase_v0.1.1",
+    'onto_companies': "onto_companies_verified",
+    'rinc_full_texts_v1.0.1': 'rinc_full_texts_v1.0.1',
+    'sti_science_rinc_meta_v1.4': 'sti_science_rinc_meta_v1.4',
+}
+
+
 def check_csv(file_url):
     try:
         df = pd.read_csv(file_url)
@@ -45,18 +63,18 @@ def select_index():
 
     current_index = st.session_state.get('index')
 
-    index_options = ["Индекс1", "Индекс2"]
-    index_index = 0 if current_index == "Индекс1" else 1
+    index_options = indexes.keys()
+    index_index = 0 if current_index == "media" else 1
 
     selected_index = st.selectbox("Выберите индекс", index_options, index=index_index)
 
     if st.session_state.index_changed:
-        st.session_state.index = selected_index
+        st.session_state.index = indexes[selected_index]
         st.session_state.index_changed = False
 
     st.write(f"Выбранный индекс: {selected_index}")
-
-    return selected_index
+    index = indexes[selected_index]
+    return index, selected_index
 
 def choose_significant_terms():
     st.subheader('✂️ "Significant terms"')
