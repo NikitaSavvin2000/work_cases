@@ -9,10 +9,20 @@ import plotly.express as px
 
 
 st.set_page_config(page_title="Семантическая-карта", page_icon="📊", layout="wide")
+try:
+    finish_calculate = st.session_state.finish_calculate
+    if finish_calculate == False:
+        st.write('📈 Строим карты... 📉')
+        st.spinner('📈 Строим карты... 📉')
+    elif finish_calculate == True:
+        try:
+            trend_map_df = st.session_state.trend_map_df
+            st.write(trend_map_df)
+        except:
+            st.write('Что-то пошло не так...')
+except:
+    st.write('Введите параметры для вашей карты и на странице input params')
 
-trend_map_df_json = st.query_params.trend_map_df
-
-trend_map_df = pd.read_json(trend_map_df_json)
 
 def show_sem_map(trend_map_df):
     st.markdown("# Семантическая-карта")
@@ -20,8 +30,7 @@ def show_sem_map(trend_map_df):
     df_vis_sem = trend_map_df
     st.write(df_vis_sem)
 
-if trend_map_df:
-    show_sem_map(trend_map_df)
+
 
 
 

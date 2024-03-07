@@ -19,13 +19,15 @@ st.sidebar.header("Ввод данных")
 
 font_size = "20px"
 
+
 col1, col2 = st.columns([1, 1])
 with col2:
-    df = input_csv()
+    df_init = input_csv()
+
     with col1:
         st.write(f'<span style="font-size:{font_size}">🔑 Ключевые слова</span>',
                  unsafe_allow_html=True)
-        st.write(df)
+        st.write(df_init)
     index, selected_index = select_index()
     with col1:
         st.write(f'<span style="font-size:{font_size}">📚 Индекс - {selected_index}</span>',
@@ -57,8 +59,6 @@ with col2:
                  unsafe_allow_html=True)
     ngram_size = count_words_in_term()
     with col1:
-
-
         st.write(f'<span style="font-size:{font_size}">🗿 Количество слов в термине - {ngram_size}</span>',
                  unsafe_allow_html=True)
 
@@ -116,12 +116,12 @@ with col2:
                         unsafe_allow_html=True)
                     st.write('')
                     with st.spinner('📈 Строим карты... 📉'):
+                        finish_calculate = False
+                        st.session_state.finish_calculate = finish_calculate
                         # Здесь будет код получения trend_map_df пока он подставлен
                         trend_map_df = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vRuKlvnZ01eveM-x0jRkDYKu8mkqQwPhVIb0V1K8PjBoN3zEgi69QR2JB8PLTSLjE7O4VkFOJNFXjZN/pub?gid=1103843369&single=true&output=csv')
-                        time.sleep(2)
+                        time.sleep(3)
+                        finish_calculate = True
+                        st.session_state.finish_calculate = finish_calculate
                         st.success(' 🏄 Карты построились! 🤸')
-
-                        trend_map_df_json = trend_map_df.to_json()
-                        st.query_params.trend_map_df = trend_map_df_json
-                        st.write(st.query_params.trend_map_df)
-                        print(st.query_params.trend_map_df)
+                        st.session_state.trend_map_df = trend_map_df

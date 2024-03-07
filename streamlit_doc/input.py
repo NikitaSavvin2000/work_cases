@@ -58,115 +58,147 @@ def input_csv():
 def select_index():
     st.subheader("📚 Выбор индекса")
 
-    if 'index_changed' not in st.session_state:
-        st.session_state.index_changed = False
+    # Проверяем, есть ли уже сохраненные значения в session_state
+    if 'selected_index' not in st.session_state:
+        st.session_state.selected_index = "media"
 
-    current_index = st.session_state.get('index')
+    # Получаем текущий выбранный индекс
+    selected_index = st.session_state.selected_index
 
     index_options = indexes.keys()
-    index_index = 0 if current_index == "media" else 1
 
+    # Получаем индекс для начального выбора
+    index_index = list(index_options).index(selected_index) if selected_index in index_options else 0
+
+    # Выбор индекса с помощью selectbox
     selected_index = st.selectbox("Выберите индекс", index_options, index=index_index)
 
-    if st.session_state.index_changed:
-        st.session_state.index = indexes[selected_index]
-        st.session_state.index_changed = False
+    # Если значение индекса изменилось, обновляем session_state
+    if selected_index != st.session_state.selected_index:
+        st.session_state.selected_index = selected_index
 
     st.write(f"Выбранный индекс: {selected_index}")
+
     index = indexes[selected_index]
     return index, selected_index
+
 
 def choose_significant_terms():
     st.subheader('✂️ "Significant terms"')
 
-    option = st.radio('Выберите "Significant terms":', ["True", "False"], index=None)
+    if 'selected_option' not in st.session_state:
+        st.session_state.selected_option = False
 
-    if option == "True":
+    selected_option = st.session_state.selected_option
+
+    selected_option = st.radio("Выберите 'Significant terms':", [False, True], index=selected_option)
+
+    # Если значение изменилось, обновляем session_state
+    if selected_option != st.session_state.selected_option:
+        st.session_state.selected_option = selected_option
+
+    if selected_option:
         st.write("Significant terms: True")
-        return True
-    elif option == "False":
-        st.write("Significant terms: False")
-        return False
     else:
-        st.warning("Пожалуйста, выберите один из вариантов")
-        st.stop()
+        st.write("Significant terms: False")
+
+    return selected_option
+
+
+import streamlit as st
 
 def input_num_points():
-    st.subheader('📍Количество точек')
+    st.subheader("📍Количество точек")
 
-    if 'num_points_changed' not in st.session_state:
-        st.session_state.num_points_changed = False
+    if 'num_points' not in st.session_state:
+        st.session_state.num_points = 100
 
-    current_num_points = st.session_state.get('num_points', 0)
-    step = 100
-    num_points = st.number_input("Введите количество точек", min_value=0, max_value=1000,
-                                 value=current_num_points, step=step, key="num_points")
+    selected_num_points = st.session_state.num_points
 
-    if st.session_state.num_points_changed:
-        st.write(f"Количество точек: {num_points}")
+    num_points = st.slider("Выберите количество точек", min_value=1, max_value=1000, step=1,  value=selected_num_points)
+
+    if num_points != st.session_state.num_points:
         st.session_state.num_points = num_points
-        st.session_state.num_points_changed = False
-    st.write(f"Количество точек: {num_points}")
+
+    st.write(f"Выбранное количество точек: {num_points}")
+
     return num_points
 
 def min_score():
     st.subheader('🧨 "Min Score"️')
 
-    if 'min_score_changed' not in st.session_state:
-        st.session_state.min_score_changed= False
+    if 'min_score' not in st.session_state:
+        st.session_state.min_score = 21
 
-    current_min_score = st.session_state.get('min_score', 21)
-    step = 1
-    min_score = st.number_input("Введите свой Min Score", min_value=5, max_value=30,
-                                 value=current_min_score, step=step, key="min_score")
+    current_min_score = st.session_state.min_score
 
-    if st.session_state.min_score_changed:
-        st.write(f"Min Score: {min_score}")
+    min_score = st.slider("Выберите Min Score", min_value=5, max_value=30, value=current_min_score, step=1)
+
+    if min_score != st.session_state.min_score:
         st.session_state.min_score = min_score
-        st.session_state.min_score_changed = False
+
     st.write(f"Min Score: {min_score}")
+
     return min_score
 
+
+
+
+import streamlit as st
+
+import streamlit as st
 
 def input_date_range():
     st.subheader("🌚 Выбор диапазона дат")
 
-    if 'date_range_changed' not in st.session_state:
-        st.session_state.date_range_changed = False
+    if 'start_date' not in st.session_state:
+        st.session_state.start_date = 2018
 
-    current_start_year = st.session_state.get('start_year', 1991)
-    current_end_year = st.session_state.get('end_year', 2024)
+    if 'end_date' not in st.session_state:
+        st.session_state.end_date = 2024
 
-    start_year = st.selectbox("Выберите начальный год", list(range(1991, 2025)), index=current_start_year-1991, key="start_year")
+    start_date_options_list = list(range(1991, st.session_state.end_date + 1))
+    end_date_options_list = list(range(st.session_state.start_date, 2025))
 
-    end_year = st.selectbox("Выберите конечный год", list(range(start_year, 2025)), index=current_end_year-start_year, key="end_year")
+    current_start_index = start_date_options_list.index(st.session_state.start_date)
+    end_start_index = end_date_options_list.index(st.session_state.end_date)
 
-    if st.session_state.date_range_changed:
-        st.session_state.start_year = start_year
-        st.session_state.end_year = end_year
-        st.session_state.date_range_changed = False
-    st.write(f"Диапазон дат с: {start_year} по {end_year}")
+    start_date = st.selectbox(
+        "Выберите начальный год",
+        start_date_options_list,
+        index=current_start_index
+    )
 
-    return start_year, end_year
+    if start_date != st.session_state.start_date:
+        st.session_state.start_date = start_date
+
+
+    end_date = st.selectbox(
+        "Выберите конечный год",
+        end_date_options_list,
+        index=end_start_index
+    )
+
+    if end_date != st.session_state.end_date:
+        st.session_state.end_date = end_date
+
+    st.write(f"Диапазон дат с: {start_date} по {end_date}")
+
+    return start_date, end_date
+
+
+
+
 
 def select_language():
     st.subheader("🇷🇺🇬🇧🇨🇳 Выбор языка")
 
-    if 'language_changed' not in st.session_state:
-        st.session_state.language_changed = False
+    if 'language' not in st.session_state:
+        st.session_state.language = 'ru'
 
-    current_language = st.session_state.get('language')
-
-    language_index = 0
-    if current_language in ['ru', 'en', 'zh']:
-        language_index = ['ru', 'en', 'zh'].index(current_language)
-
+    language_index = ['ru', 'en', 'zh'].index(st.session_state.language)
     language = st.selectbox("Выберите язык", ['ru', 'en', 'zh'], index=language_index)
-
-    if st.session_state.language_changed:
-        st.session_state.language = language
-        st.session_state.language_changed = False
-
+    st.session_state.language = language
     st.write(f"Язык: {language}")
 
     return language
@@ -174,17 +206,15 @@ def select_language():
 def count_words_in_term():
     st.subheader('🗿 Количество слов в термине')
 
-    if 'ngram_size_changed' not in st.session_state:
-        st.session_state.ngram_size_changed = False
+    if 'ngram_size' not in st.session_state:
+        st.session_state.ngram_size = 1
 
-    ngram_size = st.session_state.get('ngram_size', 1)
     step = 1
-    ngram_size = st.number_input("Введите количество слов в термине", min_value=1, max_value=5,
-                                 value=ngram_size, step=step, key="ngram_size")
+    ngram_size = st.slider("Введите количество слов в термине", min_value=1, max_value=5,
+                                 value=st.session_state.ngram_size, step=step)
 
-    if st.session_state.ngram_size_changed:
-        st.session_state.ngram_size = ngram_size
-        st.session_state.ngram_size_changed = False
+    st.session_state.ngram_size = ngram_size
     st.write(f"Количество слов в термине: {ngram_size}")
+
     return ngram_size
 
