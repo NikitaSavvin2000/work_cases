@@ -1,9 +1,11 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+from adjustText import adjust_text
+import plotly.graph_objects as go
+
 
 st.set_page_config(page_title="Тренд-карта", page_icon="📊", layout="wide")
-
 
 
 st.markdown("# Тренд-карта")
@@ -29,30 +31,50 @@ def show_trend_map(trend_map_df):
     min_val = df_vis_sem['word2vec_centrality'].min()
     max_val = df_vis_sem['word2vec_centrality'].max()
 
-    desired_min = 0.1
+    desired_min = 0.2
     desired_max = 10
-
     df_vis_sem['size'] = ((df_vis_sem['word2vec_centrality'] - min_val) / (max_val - min_val)) * (desired_max - desired_min) + desired_min
-    textfont_min = 5
-    textfont_max = 15
-    df_vis_sem['textsize'] = ((df_vis_sem['word2vec_centrality'] - min_val) / (max_val - min_val)) * (textfont_max - textfont_min) + textfont_min
 
+    weight_min = 0.5
+    weight_max = 20
+    df_vis_sem['weight_text'] = ((df_vis_sem['word2vec_centrality'] - min_val) / (max_val - min_val)) * (weight_max - weight_min) + weight_min
+
+    textfont_min = 5
+    textfont_max = 12
+    df_vis_sem['size_text'] = ((df_vis_sem['word2vec_centrality'] - min_val) / (max_val - min_val)) * (textfont_max - textfont_min) + textfont_min
+
+    df_vis_sem['text'] = df_vis_sem.apply(
+        lambda row: f'<span style="font-size: {row["size_text"]}px; font-weight: {row["weight_text"]}; font-family: '
+                    f'Arial;">{row["label"]}</span>', axis=1)
 
     fig = px.scatter(df_vis_sem,
                      x='aagr_rank',
                      y='freq_rank',
                      color='cluster_name',
-                     hover_data=['label', 'word2vec_centrality', 'freq', 'aagr', 'quarter'],
+                     hover_data=['label', 'word2vec_centrality', 'freq', 'aagr', 'quarter', 'size_text'],
                      size='size',
                      size_max=15,
                      color_discrete_map={cluster: color for cluster, color in zip(df_vis_sem['cluster_name'], df_vis_sem['color'])},
                      hover_name='label',
-                     text='label',
-                     custom_data=['textsize']
+                     text='text'
                      )
 
+    # annotations = []
+    # for i, row in df_vis_sem.iterrows():
+    #     annotation = go.layout.Annotation(
+    #         x=row['aagr_rank'],
+    #         y=row['freq_rank'],
+    #         text=row['label'],
+    #         font=dict(size=row['size_text']),
+    #         showarrow=False
+    #     )
+    #     annotations.append(annotation)
 
-    textfont_list = df_vis_sem['textsize'].tolist()
+    # fig.update_layout(annotations=annotations)
+    # fig.update_traces(textfont=dict(size=df_vis_sem['size_text']))
+
+
+    textfont_list = df_vis_sem['size_text'].tolist()
     fig.update_xaxes(showticklabels=False, showgrid=False, zeroline=False, title_text="Динамичность")
     fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=False, title_text="Значимость")
 
@@ -110,7 +132,7 @@ def show_trend_map(trend_map_df):
                          color_discrete_map={cluster: color for cluster, color in
                                              zip(df_vis_sem['cluster_name'], df_vis_sem['color'])},
                          hover_name='label',
-                         text='label',
+                         text='text',
                          size='size'
                         )
 
@@ -143,17 +165,23 @@ def show_trend_map(trend_map_df):
 
     st.write(df_for_dash)
 
-try:
-    finish_calculate = st.session_state.finish_calculate
-    if finish_calculate == False:
-        st.write('📈 Строим карты... 📉')
-        st.spinner('📈 Строим карты... 📉')
-    elif finish_calculate == True:
-        try:
-            trend_map_df = st.session_state.trend_map_df
-            # st.write(trend_map_df)
-            show_trend_map(trend_map_df)
-        except:
-            st.write('Что-то пошло не так...')
-except:
-    st.write('Введите параметры для вашей карты и на странице input params')
+trend_map_df = pd.read_csv(
+        'https://docs.google.com/spreadsheets/d/e/2PACX-1vRuKlvnZ01eveM-x0jRkDYKu8mkqQwPhVIb0V1K8PjBoN3zEgi69QR2JB8PLTSLjE7O4VkFOJNFXjZN/pub?gid=1103843369&single=true&output=csv')
+
+
+show_trend_map(trend_map_df)
+
+# try:
+#     finish_calculate = st.session_state.finish_calculate
+#     if finish_calculate == False:
+#         st.write('📈 Строим карты... 📉')
+#         st.spinner('📈 Строим карты... 📉')
+#     elif finish_calculate == True:
+#         try:
+#             trend_map_df = st.session_state.trend_map_df
+#             # st.write(trend_map_df)
+#             show_trend_map(trend_map_df)
+#         except:
+#             st.write('Что-то пошло не так...')
+# except:
+#     st.write('Введите параметры для вашей карты и на странице input params')

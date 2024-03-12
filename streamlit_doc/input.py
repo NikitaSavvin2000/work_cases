@@ -58,22 +58,13 @@ def input_csv():
 def select_index():
     st.subheader("📚 Выбор индекса")
 
-    # Проверяем, есть ли уже сохраненные значения в session_state
     if 'selected_index' not in st.session_state:
         st.session_state.selected_index = "media"
 
-    # Получаем текущий выбранный индекс
     selected_index = st.session_state.selected_index
-
     index_options = indexes.keys()
-
-    # Получаем индекс для начального выбора
     index_index = list(index_options).index(selected_index) if selected_index in index_options else 0
-
-    # Выбор индекса с помощью selectbox
     selected_index = st.selectbox("Выберите индекс", index_options, index=index_index)
-
-    # Если значение индекса изменилось, обновляем session_state
     if selected_index != st.session_state.selected_index:
         st.session_state.selected_index = selected_index
 
@@ -81,6 +72,25 @@ def select_index():
 
     index = indexes[selected_index]
     return index, selected_index
+
+
+# def select_search_field():
+#     st.subheader("📚 Выбор поле поиска")
+#
+#     if 'selected_ашудв' not in st.session_state:
+#         st.session_state.selected_index = "article_body"
+#
+#     selected_field = st.session_state.selected_field
+#     field_options = fields.keys()
+#     field_index = list(field_options).index(field_index) if field_index in field_options else 0
+#     selected_field = st.selectbox("Выберите поле поиска", field_options, index=field_index)
+#     if selected_index != st.session_state.selected_index:
+#         st.session_state.selected_index = selected_index
+#
+#     st.write(f"Выбранный индекс: {selected_index}")
+#
+#     index = indexes[selected_index]
+#     return index, selected_index
 
 
 def choose_significant_terms():
@@ -185,9 +195,6 @@ def input_date_range():
     st.write(f"Диапазон дат с: {start_date} по {end_date}")
 
     return start_date, end_date
-
-
-
 
 
 def select_language():
