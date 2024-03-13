@@ -11,20 +11,6 @@ st.set_page_config(page_title="Тренд-карта", page_icon="📊", layout=
 st.markdown("# Тренд-карта")
 st.sidebar.header("Тренд-карта")
 
-# try:
-#     finish_calculate = st.session_state.finish_calculate
-#     if finish_calculate == False:
-#         st.write('📈 Строим карты... 📉')
-#         st.spinner('📈 Строим карты... 📉')
-#     elif finish_calculate == True:
-#         try:
-#             trend_map_df = st.session_state.trend_map_df
-#             st.write(trend_map_df)
-#             show_trend_map(trend_map_df)
-#         except:
-#             st.write('Что-то пошло не так...')
-# except:
-#     st.write('Введите параметры для вашей карты и на странице input params')
 
 def show_trend_map(trend_map_df):
     df_vis_sem = trend_map_df
@@ -58,23 +44,9 @@ def show_trend_map(trend_map_df):
                      hover_name='label',
                      text='text'
                      )
+    # for trace in fig.data:
+    #     trace.update({'editable': True})
 
-    # annotations = []
-    # for i, row in df_vis_sem.iterrows():
-    #     annotation = go.layout.Annotation(
-    #         x=row['aagr_rank'],
-    #         y=row['freq_rank'],
-    #         text=row['label'],
-    #         font=dict(size=row['size_text']),
-    #         showarrow=False
-    #     )
-    #     annotations.append(annotation)
-
-    # fig.update_layout(annotations=annotations)
-    # fig.update_traces(textfont=dict(size=df_vis_sem['size_text']))
-
-
-    textfont_list = df_vis_sem['size_text'].tolist()
     fig.update_xaxes(showticklabels=False, showgrid=False, zeroline=False, title_text="Динамичность")
     fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=False, title_text="Значимость")
 
@@ -165,23 +137,23 @@ def show_trend_map(trend_map_df):
 
     st.write(df_for_dash)
 
-trend_map_df = pd.read_csv(
-        'https://docs.google.com/spreadsheets/d/e/2PACX-1vRuKlvnZ01eveM-x0jRkDYKu8mkqQwPhVIb0V1K8PjBoN3zEgi69QR2JB8PLTSLjE7O4VkFOJNFXjZN/pub?gid=1103843369&single=true&output=csv')
+# trend_map_df = pd.read_csv(
+#         'https://docs.google.com/spreadsheets/d/e/2PACX-1vRuKlvnZ01eveM-x0jRkDYKu8mkqQwPhVIb0V1K8PjBoN3zEgi69QR2JB8PLTSLjE7O4VkFOJNFXjZN/pub?gid=1103843369&single=true&output=csv')
+#
+#
+# show_trend_map(trend_map_df)
 
-
-show_trend_map(trend_map_df)
-
-# try:
-#     finish_calculate = st.session_state.finish_calculate
-#     if finish_calculate == False:
-#         st.write('📈 Строим карты... 📉')
-#         st.spinner('📈 Строим карты... 📉')
-#     elif finish_calculate == True:
-#         try:
-#             trend_map_df = st.session_state.trend_map_df
-#             # st.write(trend_map_df)
-#             show_trend_map(trend_map_df)
-#         except:
-#             st.write('Что-то пошло не так...')
-# except:
-#     st.write('Введите параметры для вашей карты и на странице input params')
+try:
+    finish_calculate = st.session_state.finish_calculate
+    if finish_calculate == False:
+        st.write('📈 Строим карты... 📉')
+        st.spinner('📈 Строим карты... 📉')
+    elif finish_calculate == True:
+        try:
+            trend_map_df = st.session_state.trend_map_df
+            # st.write(trend_map_df)
+            show_trend_map(trend_map_df)
+        except:
+            st.write('Что-то пошло не так...')
+except:
+    st.write('Введите параметры для вашей карты и на странице input params')
